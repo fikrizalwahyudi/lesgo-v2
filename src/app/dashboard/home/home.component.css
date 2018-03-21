@@ -1,0 +1,221 @@
+.message-item {
+  margin-bottom: 25px;
+  margin-left: 40px;
+  position: relative;
+  }
+  .message-item .message-inner {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  padding: 10px;
+  position: relative;
+  }
+  .message-item .message-inner:before {
+  border-right: 10px solid #ddd;
+  border-style: solid;
+  border-width: 10px;
+  color: rgba(0,0,0,0);
+  content: "";
+  display: block;
+  height: 0;
+  position: absolute;
+  left: -20px;
+  top: 6px;
+  width: 0;
+  }
+  .message-item .message-inner:after {
+  border-right: 10px solid #fff;
+  border-style: solid;
+  border-width: 10px;
+  color: rgba(0,0,0,0);
+  content: "";
+  display: block;
+  height: 0;
+  position: absolute;
+  left: -18px;
+  top: 6px;
+  width: 0;
+  }
+  .message-item:before {
+  background: #fff;
+  border-radius: 2px;
+  bottom: -30px;
+  box-shadow: 0 0 3px rgba(0,0,0,0.2);
+  content: "";
+  height: 100%;
+  left: -30px;
+  position: absolute;
+  width: 3px;
+  }
+  .message-item:after {
+  background: #fff;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  content: "";
+  height: 15px;
+  left: -36px;
+  position: absolute;
+  top: 10px;
+  width: 15px;
+  }
+  .clearfix:before, .clearfix:after {
+  content: " ";
+  display: table;
+  }
+  .message-item .message-head {
+  border-bottom: 1px solid #eee;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  }
+  .message-item .message-head .avatar {
+  margin-right: 20px;
+  }
+  .message-item .message-head .user-detail {
+  overflow: hidden;
+  }
+  .message-item .message-head .user-detail h5 {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0;
+  }
+  .message-item .message-head .post-meta {
+  float: left;
+  padding: 0 15px 0 0;
+  }
+  .message-item .message-head .post-meta >div {
+  color: #333;
+  font-weight: bold;
+  text-align: right;
+  }
+  .post-meta > div {
+  color: #777;
+  font-size: 12px;
+  line-height: 22px;
+  }
+  .message-item .message-head .post-meta >div {
+  color: #333;
+  font-weight: bold;
+  text-align: right;
+  }
+  .post-meta > div {
+  color: #777;
+  font-size: 12px;
+  line-height: 22px;
+  }
+  /* img {
+   min-height: 40px;
+   max-height: 40px;
+  } */
+
+
+  /* carousel */
+
+
+  .navcarbox {
+    padding-left:5px;
+    display: block; 
+    line-height: 1.42857143;
+    background-color: #fff;
+    border-radius: 2px;
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12); 
+    transition: box-shadow .25s; 
+}
+.dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
+    color: #fff;
+    text-decoration: none;
+    background-color: #f7941d;
+    
+}
+.navbar-brand img {
+    float: left;
+    transition: all .5s ease-out;
+    margin: 0;
+}
+
+/* Slider CSS */
+/* Carousel Styles */
+
+/* Carousel Styles */
+
+.carousel-control {color: #e2e2e2;}
+
+.carousel-indicators .active {background-color: #ff5900;}
+.carousel-inner img {width: 100%;max-height: 300px;}
+.carousel-control.left,
+.carousel-control.right {
+	opacity: 1;
+	filter: alpha(opacity=100);
+	background-image: none;
+	background-repeat: no-repeat;
+	text-shadow: none;
+}
+.carousel-control.left span {margin-left: 50px;}
+.carousel-control.right span {margin-right: 50px;}
+.carousel-control .glyphicon-chevron-left, 
+.carousel-control .glyphicon-chevron-right, 
+.carousel-control .icon-prev, 
+.carousel-control .icon-next {
+	position: absolute;
+	top: 45%;
+	z-index: 5;
+	display: inline-block;
+	
+}
+
+.carousel-control .glyphicon-chevron-left,
+.carousel-control .icon-prev {
+	left: 0;
+}
+
+.carousel-control .glyphicon-chevron-right,
+.carousel-control .icon-next {
+	right: 0;
+	
+}
+
+.carousel-control.left span,
+.carousel-control.right span {
+	background-color: none;
+	
+}
+
+.carousel-control.left span:hover,
+.carousel-control.right span:hover {
+	opacity: .7;
+	filter: alpha(opacity=70);
+}
+
+/* Carousel Header Styles */
+.header-text {
+    position: absolute;
+    top: 35%;
+    left: 1.8%;
+    right: auto;
+    width: 96.66666666666666%;
+    color: #fff;
+    font-size:18px;
+    letter-spacing:1px;
+}
+
+.header-text h2 {font-size: 60px;color:#fff; font-weight:600;}
+.header-text h2 span {padding: 10px; color:orange;}
+.header-text h3 span {padding: 15px;}
+
+.btn-min-block {min-width: 170px;line-height: 26px;}
+
+.btn-theme {
+    color: #fff;
+    background-color: transparent;
+    border: 2px solid #fff;
+    margin-right: 15px;
+}
+
+.btn-theme:hover {
+    color: #000;
+    background-color: #f7941d;
+    border-color: #fff;
+}
+.navbar {
+    margin-bottom:0px;
+}

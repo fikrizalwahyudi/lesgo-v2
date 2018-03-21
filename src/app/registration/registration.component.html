@@ -1,0 +1,152 @@
+<!-- <div class="form-container">
+    <a routerLink="/registration" id="goback">Go back</a>
+    <h2>Custom registration</h2>
+
+    <span class="error" *ngIf="error" [@fallIn]='state'>{{ error }}</span>
+
+    <form #formData='ngForm' (ngSubmit)="onSubmit(formData)">
+
+      <input type="text" placeholder="Email address.." (ngModel)="email" name="email" class="txt" required>
+      <input type="password" placeholder="Password" (ngModel)="password" name="password" class="txt" required>
+
+      <button type="submit" [disabled]="!formData.valid" class="basic-btn">Log in</button>
+      <a routerLink="/signup" class="alc">Don't have an account?</a>
+  </form>
+</div> -->
+
+
+<div class="main-content" >
+  <div class="container-fluid registration-page">
+      <div class="row">
+          <div class="col-md-6 col-md-offset-3">
+              <div class="card">
+                  <div class="header">
+                      <h4 class="title text-center">Registration Form</h4>
+                  </div>
+                  <div class="content form-registration">
+                      <!-- <form > -->
+                          <div class="row" >
+                              <div class="col-md-4">
+                                    <div class="  text-center">
+                                            <img data-target="#modal-upload" data-toggle="modal" class="avatar border-gray profile-picture" src="{{profilePhoto}}" alt="..."/>
+                                      </div>
+                              </div>
+                              <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label for="exampleInputEmail1">First Name</label>
+                                        <input type="text" [(ngModel)]="firstName" class="form-control" placeholder="First Name">
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail1">Last Name</label>
+                                            <input type="text" [(ngModel)]="lastName" class="form-control" placeholder="Last Name">
+                                        </div>
+                                    </div>
+                              
+                                
+                          </div>
+                          <!-- <div class="row">
+                                <button type="submit"  class="btn btn-info btn-fill btn-block" data-target="#modal-upload" data-toggle="modal">registration</button>
+                                
+                          </div> -->
+                          
+                          <div class="row">
+                              <div class="col-md-12">
+                                  <div class="form-group">
+                                      <label for="exampleInputEmail1">Email address</label>
+                                      <input type="email" [(ngModel)]="email" class="form-control" placeholder="Email">
+                                  </div>
+                              </div>
+                              
+                          </div>
+                          <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="exampleInputEmail1">Phone Number</label>
+                                        <input type="text" [textMask]="{mask: mask, modelClean: true}" [(ngModel)]="phoneNumber" class="form-control" placeholder="Phone Number">
+                                    </div>
+                                </div>
+                          </div>
+                          <div class="row">
+                              <div class="col-md-12">
+                                  <div class="form-group">
+                                      <label for="exampleInputEmail1">Password</label>
+                                      <input type="password" [(ngModel)]="password" class="form-control" placeholder="Password">
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="exampleInputEmail1">Password Confirmation</label>
+                                        <input type="password" [(ngModel)]="passwordConfirmation" class="form-control" placeholder="Password">
+                                    </div>
+                                </div>
+                            </div>
+                          <div class="row">
+
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <!-- <label for="exampleInputEmail1">Please Pin Your Location</label> -->
+                                    <input style="position:  absolute;z-index:  1;margin-top:  10%;width: 60%;margin-left:  5%;" placeholder="search for location" autocorrect="off" autocapitalize="off" spellcheck="off" type="text" class="form-control" #search [(ngModel)]="pinPointAddress" [formControl]="searchControl">
+                                </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-md-12">
+                                <label for="exampleInputEmail1">* Geser map untuk menentukan lokasi belajar kamu</label>
+                                <agm-map [latitude]="latitude" [longitude]="longitude" (centerChange)="centerChanged($event)" [zoom]="zoom">
+                                    <!-- <agm-marker [latitude]="latitude" [longitude]="longitude"></agm-marker> -->
+                                </agm-map>
+                                <img class="" src="/assets/img/markerhome.png" alt="" style="width: 5%;box-shadow: none;position: absolute;top: 46.5%;left: 47.48%;">
+                            </div>
+                        </div>
+                        <br>
+                          <button type="submit" (click)="onSubmit()" class="btn btn-info btn-fill btn-block">Submit</button>
+                          <!-- <a href="#" (click)="register()">Dont have account ? </a> 
+                          <a href="#" class="pull-right">Forgot Password </a>  -->
+                          <div class="clearfix"></div>
+                           
+                      <!-- </form> -->
+                  </div>
+              </div>
+             
+          </div>
+          
+      </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modal-upload" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog cascading-modal" role="document">
+        <!--Content-->
+        <div class="modal-content">
+
+            <!--Header-->
+            <div class="modal-header light-blue darken-3 white-text">
+                <button type="button" class="close waves-effect waves-light" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="title">Upload Profile Picture</h4>
+            </div>
+            <!--Body-->
+            <div class="modal-body mb-0 text-center">
+                <!-- <div class="modal-body"> -->
+                <div class="file-upload">
+                    <input id="custom-input" type="file" (change)="fileChangeListener($event)">
+                </div>
+                <img-cropper #cropper [image]="data" [settings]="cropperSettings"></img-cropper>
+
+                <!-- </div> -->
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal" >Cancel</button>
+                <button class="btn btn-primary" data-dismiss="modal" (click)="submitImg()">Upload</button>
+            </div>
+
+        </div>
+        <!--/.Content-->
+    </div>
+</div>

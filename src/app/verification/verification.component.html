@@ -1,0 +1,53 @@
+<!-- <div class="form-container">
+    <a routerLink="/login" id="goback">Go back</a>
+    <h2>Custom Login</h2>
+
+    <span class="error" *ngIf="error" [@fallIn]='state'>{{ error }}</span>
+
+    <form #formData='ngForm' (ngSubmit)="onSubmit(formData)">
+
+      <input type="text" placeholder="Email address.." (ngModel)="email" name="email" class="txt" required>
+      <input type="password" placeholder="Password" (ngModel)="password" name="password" class="txt" required>
+
+      <button type="submit" [disabled]="!formData.valid" class="basic-btn">Log in</button>
+      <a routerLink="/signup" class="alc">Don't have an account?</a>
+  </form>
+</div> -->
+
+<div class="main-content" >
+  <div class="container-fluid verification-page">
+      <div class="row">
+          <div class="col-md-4 col-md-offset-4">
+              <div class="card">
+                  <div class="header">
+                      <h4 class="title text-center">Enter a verification code</h4>
+                      <br>
+                      <h5 class="title text-center">A text message with a verification code was just sent to ******* {{phoneNumber.slice(-3)}} </h5>
+                  </div>
+                  <div class="content form-verification">
+                      <!-- <form > -->
+                          <div class="row">
+                              <div >
+                                  <div class="form-group">
+                                      <label for="exampleInputEmail1">Verification Code</label>
+                                      <input type="text" [(ngModel)]="verificationCode" class="form-control" placeholder="Verification Code">
+                                  </div>
+                              </div>
+                              
+                          </div>
+                          
+
+                         
+                          <button type="submit" (click)="onSubmit()" class="btn btn-info btn-fill btn-block">Done</button>
+                          <a (click)="resendCode()">Resend Code</a>
+                          <div class="clearfix"></div>
+                           
+                      <!-- </form> -->
+                  </div>
+              </div>
+             
+          </div>
+          
+      </div>
+  </div>
+</div>

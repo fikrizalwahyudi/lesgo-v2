@@ -1,0 +1,307 @@
+<!-- <div id="loader"><img src="assets/img/loader-preview.svg" alt="loading"></div> -->
+<div class="main-content" >
+        <div class="container-fluid">
+            <div class="row">
+                
+                <div class="col-md-8">
+                        <div class="card" *ngIf="selectedOrderType == 'Regular'">
+                                <div class="header">
+                                    <h4 class="title">Order Form</h4>
+                                </div>
+                                <div class="content">
+                                        <div class="row">
+                                           
+                                            <div class="col-md-6">
+                                                
+                                                <div class="form-group">
+                                                    <label>Order Type</label>
+                                                    <ng-select [(ngModel)]="selectedOrderType" (deselected)="onDeselected($event)" (selected)="onSelectedOrderType($event)" [noFilter]="noFilterThreshold"  [options]="orderTypeOptions">
+                                                    </ng-select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">  
+                                                <div class="form-group">
+                                                    <label>Total Student</label>
+                                                    <ng-select [(ngModel)]="selectedTotalStudent" (deselected)="onDeselected($event)" (selected)="onSelectedTotalStudent($event)" [noFilter]="noFilterThreshold" [options]="totalStudentOptions">
+                                                    </ng-select>
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                        
+                                        <div class="row"> 
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Start Date</label>
+                                                    <my-date-picker  name="startDate" [placeholder]="'Start Date'" [options]="startDatePickerOptions"[(ngModel)]="startDate" (ngModelChange)="onSelectedStartDate()" required></my-date-picker>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>End Date</label>
+                                                        <my-date-picker [disabled]="!startDate" name="endDate" [placeholder]="'End Date'" [options]="endDatePickerOptions"[(ngModel)]="endDate" (ngModelChange)="onSelectedEndDate()" required></my-date-picker>
+                                                    </div>
+                                                </div>
+                                        </div>
+                                        <div class="row"> 
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Frekuensi</label>
+                                                        <ng-select (deselected)="onDeselected($event)" (selected)="onSelectedFrekuensi($event)" [noFilter]="noFilterThreshold" [allowClear]="false" [options]="frekuensiOptions" [(ngModel)]="selectedFrekuensi"></ng-select>
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                        <div class="row" *ngFor="let each of frekuensiDayHour ; let x = index;"> 
+                                            <div class="col-md-6">
+                                                <div class="form-group"  >
+                                                    <label>Day</label>
+                                                    <ng-select (deselected)="onDeselected($event)" [(ngModel)]="each.day" (selected)="onSelectedDay($event, x)" [noFilter]="noFilterThreshold" [allowClear]="true" [options]="dayOptions"></ng-select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group" >
+                                                    <label>Hour</label>
+                                                    <ng-select (deselected)="onDeselected($event)" [(ngModel)]="each.hour" (selected)="onSelectedHour($event,each.day,each.hour, x)" [noFilter]="noFilterThreshold" [allowClear]="true" [options]="hourOpt[x]"> </ng-select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row"> 
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Student Name</label>
+                                                    <input type="text" class="form-control" placeholder="Student Name" [(ngModel)]="studentName">
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="row"> 
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label>Detail Address</label>
+                                                    <input type="text" class="form-control" placeholder="Detail Address" [(ngModel)]="studentAddress">
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                        
+                                        
+                                        
+                                        <!-- <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail1">Address</label>
+                                                    <input placeholder="search for location" autocorrect="off" autocapitalize="off" spellcheck="off" type="text" class="form-control" #search [(ngModel)]="pinPointAddress" [formControl]="searchControl">
+                                                </div>
+                                            </div>
+                                          </div>
+                                          <div class="row">
+                                              <div class="col-md-12">
+                                                <agm-map [latitude]="latitude" [longitude]="longitude" (centerChange)="centerChanged($event)" [zoom]="zoom">
+                                                   
+                                                </agm-map>
+                                                <img class="" src="/assets/img/markerhome.png" alt="" style="width: 5%;box-shadow: none;position: absolute;top: 34.5%;left: 47.48%;">
+                                            </div>
+                                           </div> -->
+            
+                                      
+                                        <br>
+                                        <button (click)="checkCart()" type="submit" class="btn btn-info btn-fill pull-right">Submit</button>
+                                        <div class="clearfix"></div>
+                                   
+                                </div>
+                            </div>
+                            <div class="card" *ngIf="selectedOrderType == 'Single Session'">
+                                <div class="header">
+                                    <h4 class="title">Order Form</h4>
+                                </div>
+                                <div class="content">
+                                        <div class="row">
+                                            
+                                            <div class="col-md-6">
+                                                
+                                                <div class="form-group">
+                                                    <label>Order Type</label>
+                                                    <ng-select [(ngModel)]="selectedOrderType" (deselected)="onDeselected($event)" (selected)="onSelectedOrderType($event)" [noFilter]="noFilterThreshold"  [options]="orderTypeOptions">
+                                                    </ng-select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">  
+                                                <div class="form-group">
+                                                    <label>Total Student</label>
+                                                    <ng-select [(ngModel)]="selectedTotalStudent" (deselected)="onDeselected($event)" (selected)="onSelectedTotalStudent($event)" [noFilter]="noFilterThreshold" [options]="totalStudentOptions">
+                                                    </ng-select>
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                        
+                                        <div class="row"> 
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Session Date</label>
+                                                    <my-date-picker  name="sessionDate" [placeholder]="'Session Date'" [options]="singleSessionPickerOptions"[(ngModel)]="sessionDate" (ngModelChange)="onSelectedSessionDate()" required></my-date-picker>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group" >
+                                                    <label>Hour</label>
+                                                    <ng-select (deselected)="onDeselected($event)"  (selected)="onSelectedHour($event,sessionDate,singleHour, 0)" [(ngModel)]="singleHour" [noFilter]="noFilterThreshold" [allowClear]="true" [options]="singleSessionHourOption" > </ng-select>
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="row"> 
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Student Name</label>
+                                                    <input type="text" class="form-control" placeholder="Student Name" [(ngModel)]="studentName">
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="row"> 
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label>Detail Address</label>
+                                                    <input type="text" class="form-control" placeholder="Detail Address" [(ngModel)]="studentAddress">
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                        
+                                        
+                                        
+                                        <!-- <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail1">Address</label>
+                                                    <input placeholder="search for location" autocorrect="off" autocapitalize="off" spellcheck="off" type="text" class="form-control" #search [(ngModel)]="pinPointAddress" [formControl]="searchControl">
+                                                </div>
+                                            </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                <agm-map [latitude]="latitude" [longitude]="longitude" (centerChange)="centerChanged($event)" [zoom]="zoom">
+                                                    
+                                                </agm-map>
+                                                <img class="" src="/assets/img/markerhome.png" alt="" style="width: 5%;box-shadow: none;position: absolute;top: 34.5%;left: 47.48%;">
+                                            </div>
+                                            </div> -->
+            
+                                        
+                                        <br>
+                                        <button (click)="checkCart()" type="submit" class="btn btn-info btn-fill pull-right">Submit</button>
+                                        <div class="clearfix"></div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div  class="col-md-4">
+                            <div class="card card-user">
+                                <div class="image">
+                                    <img src="assets/img/bg-guru-01.png" alt="..."/>
+                                </div>
+                                <div class="content">
+                                    <div class="author">
+                                        <a href="#">
+                                            <img class="avatar border-gray" src="{{tutorData.avatar}}" alt="..."/>
+            
+                                            <h4 class="title">{{tutorData.firstName}} {{tutorData.lastName}}<br />
+                                                <!-- <small>michael24</small> -->
+                                            </h4>
+                                        </a>
+                                    </div>
+                                    <p class="text-center">{{dataProduct.categoryName}}</p>
+                                    <p class="text-center"><span class="text-center badge" *ngFor="let each of dataProduct.courses">{{each.text}}</span></p>
+                                    <p class="text-center" *ngIf="dataProduct.price">Rp. {{resolveCurrency(dataProduct.price)}}</p>
+                                    <!-- <p class="description text-center"> {{ tutorData.about}}
+                                    </p> -->
+                                </div>
+                                
+                                <hr>
+                                
+                            </div>
+                        </div>
+                <div class="col-md-12">
+                    
+                </div>
+                
+                
+                <!-- <div id="loader"><img src="assets/img/loader-preview.svg" alt="loading"></div> -->
+                
+            </div>
+            <div class="row" *ngIf="orderData.sessions">
+                
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="header">
+                            <h4 class="title" style="line-height:40px;" >Order Detail</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                        <p style=" font-size:  12px; line-height: 8px;"> <strong> {{orderData.namaMurid}}</strong></p>
+                                        <p style=" font-size:  12px; line-height: 8px;">Address : {{orderData.alamatMurid}}</p>
+                                        
+                                </div>
+                                <div class="col-md-3">
+                                        <p style=" font-size:  12px; line-height: 8px;"> <strong> Order ID </strong></p>
+                                        <p style=" font-size:  12px; line-height: 8px;">{{orderData.transactionId}}</p>
+                                        <p style=" font-size:  12px; line-height: 8px;"> <strong> Tutor Name </strong></p>
+                                        <p style=" font-size:  12px; line-height: 8px;">{{orderData.tutorName}}</p>
+                                     
+                                 </div>
+                                 <div class="col-md-3">
+                                        <p style=" font-size:  12px; line-height: 8px;"> <strong> Schedule Date </strong></p>
+                                        <p style=" font-size:  12px; line-height: 8px;">{{orderData.orderSchedule.startDate}} - {{orderData.orderSchedule.endDate}}</p>
+                                        <p style=" font-size:  12px; line-height: 8px;"> <strong> Total Price </strong></p>
+                                        <p style=" font-size:  12px; line-height: 8px;">Rp. {{resolveCurrency(orderData.totalHarga)}}</p>
+
+                                 </div>
+                            </div>
+                           
+
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                    <div class="content table-responsive ">
+                                            <h4 class="title" style="line-height:40px;" >Session Detail</h4>
+                                            <table class="table table-hover table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>No</th>
+                                                        <th >Tutor Name</th>
+                                                        <th >Day</th>
+                                                        <th >Date</th>
+                                                        <th >Hour</th>
+                                                        <th>Price</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr *ngFor="let session of orderData.sessions; let i = index" >
+                                                        <td>{{i + 1}}</td>
+                                                        <td >{{orderData.tutorName}}</td>
+                                                        <td >{{session.day}}</td>
+                                                        <td >{{session.date}}</td>
+                                                        <td >{{session.jam}}:00</td>
+                                                        <td>Rp. {{resolveCurrency(orderData.price)}}</td>
+                                                    </tr>
+                                                    
+                                                </tbody>
+                                            </table>
+                
+                                    </div>
+                            </div>
+                        </div>
+                        
+                        <!-- <br> -->
+                        <button style="margin-bottom: 10px;margin-right: 10px;" (click)="submitCart()" type="submit" class="btn btn-info btn-fill pull-right">Process</button>
+                        <div class="clearfix"></div>
+                    </div>
+                    
+                </div>
+                        
+              
+            </div>
+        </div>
+    </div>
+    

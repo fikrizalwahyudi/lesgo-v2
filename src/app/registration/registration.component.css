@@ -1,0 +1,19 @@
+.registration-page {
+    padding-top:5%;
+}
+
+.form-registration {
+    padding:10%;
+}
+
+.profile-picture {
+    width: 100px;
+    height: 100px;
+    margin-bottom:10px;
+    border: 1px solid;
+    margin-top:20%;
+}
+
+agm-map {
+    height: 300px;
+}

@@ -189,7 +189,7 @@ export class HomeComponent implements OnInit {
         //   this.totalPrice += Number(e.val.totalHarga);
         // })
 
-        this.orderHistoryData = _.filter(this.orderData, function(o) { return o.val.status != "cart" || o.val.status != "pending"; });
+        this.orderHistoryData = _.filter(this.orderData, function(o) { return o.val.status == "booked" });
         this.orderHistoryData.forEach(e=>{
           e.val.sessions.map(c=>{
             c.dateMoment = moment(c.date+" "+c.jam+":00", "MM-DD-YYYY HH:mm");
@@ -203,6 +203,8 @@ export class HomeComponent implements OnInit {
           })
           
         })
+
+        this.sessionsList = _.sortBy(this.sessionsList, 'dateMoment');
         console.log(this.sessionsList);
         console.log(this.orderStatusCartData);
         console.log(this.orderData);
@@ -227,5 +229,12 @@ export class HomeComponent implements OnInit {
   goToOrderPage(){
     this.router.navigate(['dashboard/order']);
   }
+
+  isMobileMenu() {
+    if ($(window).width() > 991) {
+        return false;
+    }
+    return true;
+} ;
 
 }

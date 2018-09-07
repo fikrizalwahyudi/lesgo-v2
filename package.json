@@ -38,6 +38,7 @@
     "mydatepicker": "^2.6.3",
     "ng-select": "^1.0.0-rc.5",
     "ng2-file-upload": "^1.2.0",
+    "ng2-img-cropper": "^0.9.0",
     "ng2-lodash": "0.0.5",
     "ng2-select": "^2.0.0",
     "ng2-select2": "^1.0.0-beta.11",

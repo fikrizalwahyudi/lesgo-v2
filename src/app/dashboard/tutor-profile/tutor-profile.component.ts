@@ -15,6 +15,8 @@ import { AngularFireDatabase } from 'angularfire2/database';
 
 import * as firebase from 'firebase';
 
+import * as _ from "lodash";
+
 declare var google: any;
 declare var $:any;
 
@@ -73,7 +75,7 @@ export class TutorProfileComponent implements OnInit {
     });
 
     this.getTutorProfile().then(e=>{
-      console.log("success");
+      console.log(e);
       this.getAllProduct().then(e=>{
         console.log("success");
       })
@@ -124,21 +126,23 @@ export class TutorProfileComponent implements OnInit {
         console.log(e.payload.val());
         this.tutorProfileData = e.payload.val();
         console.log("masuk", this.tutorProfileData.schedule.length);
+        var array:any = [];
         for (let index = 0; index < 7; index++) {
           if(this.tutorProfileData.schedule[index]){
-
+            console.log(this.tutorProfileData.schedule[index]);
+            array.push(this.tutorProfileData.schedule[index]);
           }else{
-            this.tutorProfileData.schedule[index] = {
+            array.push({
               AM:[false, false, false, false, false, false, false, false, false, false, false, false],
               PM:[false, false, false, false, false, false, false, false, false, false, false, false],
               day:this.dailyStringDay[index],
               status:false
-            }
+            })
+            // this.tutorProfileData.schedule[index] = 
           }
           
         }
-
-       
+        this.tutorProfileData.schedule = array; 
         resolve(this.tutorProfileData);
       },error =>{
         reject(error);
@@ -155,7 +159,8 @@ export class TutorProfileComponent implements OnInit {
           list.push({productKey:e.key, val:e.payload.val()});
         })
         this.productList = list;
-        // console.log(this.productList);
+        console.log(this.productList);
+        this.productList = _.filter(this.productList, function(o) { return o.val.status == true; });
         resolve(this.productList);
        
       }, error=>{

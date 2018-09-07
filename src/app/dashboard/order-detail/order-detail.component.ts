@@ -1,6 +1,6 @@
 import { NgZone, OnInit, ViewChild, ElementRef, Component, ViewContainerRef, AfterViewInit } from '@angular/core';
 import { AngularFireAuthModule, AngularFireAuth } from 'angularfire2/auth';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, NavigationExtras } from '@angular/router';
 import { FileUploader } from 'ng2-file-upload';
 import {ImageCropperComponent, CropperSettings} from 'ng2-img-cropper';
 import { FormControl } from '@angular/forms';
@@ -23,6 +23,8 @@ import * as moment from 'moment';
 
 import { Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
+
+import {Location} from '@angular/common';
 
 
 
@@ -50,7 +52,8 @@ export class OrderDetailComponent implements OnInit {
   public endDatePickerOptions: IMyDpOptions = {
     // other options...
     dateFormat: 'dd-mm-yyyy',
-    disableUntil: {year:this.now.get('year'), month: this.now.get('month') + 1, day: this.now.get('date') + 7}
+    disableUntil: {year:this.now.get('year'), month: this.now.get('month') + 1, day: this.now.get('date') + 7},
+    disableSince: {year:this.now.get('year'), month: this.now.get('month') + 4, day: this.now.get('date') + 7}
   };
 
   startDate:any;
@@ -134,12 +137,15 @@ export class OrderDetailComponent implements OnInit {
     }
   ];
 
+  coursesOption: Array<IOption> = [];
+
   selectedLevel:string = "";
   selectedCourse:string = "";
   selectedFrekuensi:string = "1";
   dayIndex:any = [true, true, true, true];
   selectedTotalStudent:string = "1";
   selectedOrderType:string = "Regular";
+  // selectedCourse:string = "1";
 
 
   //map setting
@@ -148,6 +154,7 @@ export class OrderDetailComponent implements OnInit {
   public searchControl: FormControl;
   public zoom: number;
   public pinPointAddress:any = "";
+
 
   @ViewChild("search")
   public searchElementRef: ElementRef;
@@ -177,10 +184,10 @@ export class OrderDetailComponent implements OnInit {
   orderData:any = {};
   dailyStringDay:any = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   
-  
+  listUnavailable:any = [];
   
 
-  constructor(private route: ActivatedRoute, public productService:ProductService, private afAuth:AngularFireAuth, private af:AngularFireDatabase, public userService:UserService, public smsService:SmsService, private router: Router,private mapsAPILoader: MapsAPILoader, private ngZone: NgZone) { 
+  constructor(private _location: Location, private route: ActivatedRoute, public productService:ProductService, private afAuth:AngularFireAuth, private af:AngularFireDatabase, public userService:UserService, public smsService:SmsService, private router: Router,private mapsAPILoader: MapsAPILoader, private ngZone: NgZone) { 
     // console.log(this.userService.getUserKey());
     
     
@@ -202,7 +209,7 @@ export class OrderDetailComponent implements OnInit {
         })
         
         this.userService.getMuridKey(auth.uid).snapshotChanges().subscribe(snap=>{
-          console.log(snap[0].key);
+          // console.log(snap[0].key);
           this.muridId = snap[0].key;
         })
         
@@ -210,17 +217,35 @@ export class OrderDetailComponent implements OnInit {
     
     })   
 
-    console.log(this.now.get('year'));
+    // console.log(this.now.get('year'));
+    // var that = this;
     this.route.queryParams.subscribe(params => {
-      console.log(params);
+      // console.log(params);
       this.tutorData = params;
+      // this.productService.getUnavailability(moment().format('YYYY-MM-DD'), this.tutorData.userId).subscribe(e=>{
+      //   console.log(e);
+      // })
       this.productService.getProductByKey(params.productKey).valueChanges().subscribe(snap=>{
         this.dataProduct = snap;
+        console.log(this.dataProduct);
+        this.dataProduct.courses.forEach(e=>{
+          that.coursesOption.push({label:e.text,value:e.text});
+        })
       })
+      var that = this;
       this.getDataTutor().then(e=>{
-        console.log(e);
+        // this.productService.getUnavailability(moment().format('YYYY-MM-DD'), this.tutorData.userId).subscribe(e=>{
+        //   console.log(e);
+        //  })
+        // console.log(e);
+        that.getUnavailableSchedule().then(x=>{
+          console.log(x);
+
+          // _.chain(x).map('usernames').uniq().value()
+        });
+        // console.log(e);
       }).catch(err=>{
-        console.log(err);
+        // console.log(err);
       })
       
       // console.log(this.tutorData.schedule)
@@ -245,8 +270,33 @@ export class OrderDetailComponent implements OnInit {
 
   }
   
+  getUnavailableSchedule(){
+    return new Promise((resolve , reject)=>{
+      // console.log(this.tutorData.userId);
+      this.productService.getAllOrderByTutorId(this.tutorData.uid).valueChanges().subscribe(snap=>{
+        
+        snap.forEach(e=>{
+          var data:any = e;
+          data.sessions.forEach(x=>{
+            x.jam = Number(x.jam);
+            this.listUnavailable.push(x);
+          })
+        })
+        // console.log(snap);
+        // this.listUnavailable = data.sessions;
+        this.listUnavailable = _.filter(this.listUnavailable, function(o) { return o.status == "booked"; });
+        resolve(this.listUnavailable);
+        // console.log(this.listUnavailable)
+        // resolve(this.listUnavailable)
+      },err=>{
+        reject(err);
+      })
+    })
+  }
+
   getDataTutor(){
     return new Promise((resolve , reject)=>{
+      
       this.productService.getTutorProfile(this.tutorData.userId).valueChanges().subscribe(snap=>{
         this.tutorData = snap;
         for (let index = 0; index < 7; index++) {
@@ -363,7 +413,7 @@ export class OrderDetailComponent implements OnInit {
       // Upload completed successfully, now we can get the download URL
       that.profilePhoto = uploadTask.snapshot.downloadURL;
 
-      console.log(uploadTask.snapshot.downloadURL);
+      // console.log(uploadTask.snapshot.downloadURL);
     });
   }
 
@@ -399,11 +449,11 @@ export class OrderDetailComponent implements OnInit {
 
   onSelected(option: IOption) {
     // this.msg = `Selected ${option.label}`;
-    console.log(option.value);
+    // console.log(option.value);
     this.myOptionsCourse = [];
     this.selectedLevel = option.label;
     this.userService.getAllCourseByCategories(option.value).snapshotChanges().subscribe(snapshot=>{
-      console.log(snapshot);
+      // console.log(snapshot);
       var x = [];
       snapshot.map(e=>{
         // x.push(e.key);
@@ -417,11 +467,12 @@ export class OrderDetailComponent implements OnInit {
         // console.log(this.myOptionsCourse);
       })
     })
-    console.log(option);
+    // console.log(option);
   }
 
   onSelectedFrekuensi(option: IOption) {
     // this.msg = `Selected ${option.label}`;
+    this.orderData = {};
     this.tmpHourDay = {}
     this.frekuensiDayHour = [];
     for (let i = 0; i < Number(option.value); i++) {
@@ -431,41 +482,241 @@ export class OrderDetailComponent implements OnInit {
   }
 
   onSelectedTotalStudent(option: IOption) {
+    this.orderData = {};
     // this.msg = `Selected ${option.label}`;
     this.selectedTotalStudent = option.value;
   }
 
+  
+
   onSelectedDay(option: IOption, index) {
+    this.orderData = {};
     // this.dayIndex[index] = false;
-    this.hourOptions = [];
-    console.log(option);
-    var daySchedule:any = _.filter(this.activeSchedule, {day: option.value});
-    console.log(daySchedule);
-    daySchedule[0].hour.forEach(e=>{
-      this.hourOptions.push({label:e,value:e});
+    var unavailableDay = [];
+    this.listUnavailable.forEach(e=>{
+      var obj = {
+        day:e.day,
+        jam:e.jam
+      }
+      unavailableDay.push(obj);
+      
     })
+    unavailableDay = _.uniqWith(unavailableDay, _.isEqual);
+    console.log(unavailableDay);
+
+    this.hourOptions = [];
+    // console.log(option);
+    var daySchedule:any = _.filter(this.activeSchedule, {day: option.value});
+    // console.log(daySchedule);
+    console.log(this.dateRange);
+    console.log(this.listUnavailable);
+    daySchedule[0].hour.forEach(e=>{
+      var a = {
+        day:option.value,
+        jam:e
+      }
+
+      if(_.some(unavailableDay, a)){
+
+      }else{
+        this.hourOptions.push({label:e+":00",value:e});
+       
+      }  
+    })
+
+    
+    
     this.hourOpt[index] = this.hourOptions;
     // this.dayIndex[index] = true;
+    this.tmpHourDay[index] = {};
+    this.tmpHourDay[index] = {day:option.value, hour:""};
+    console.log(this.tmpHourDay);
+
+    for (var key in this.tmpHourDay) {
+      if (this.tmpHourDay.hasOwnProperty(key)) {
+          console.log(key);
+          console.log(this.tmpHourDay[key]);
+          if(this.tmpHourDay[key].hour == ""){
+            // console.log(this.tmpHourDay[key].hour);
+            // this.hourOptions.push({label:e+":00",value:e});
+          }else{
+            if(this.tmpHourDay[key].day == option.value){
+              this.hourOptions.map(x=>{
+                if(x.value == this.tmpHourDay[key].hour){
+                  x.disabled = true;
+                }
+                
+              })
+            }
+            
+            // this.hourOptions.push({label:e+":00",value:e, disabled: true});
+          }
+      }
+    }
   }
 
   onSelectedHour(option: IOption, day,hour, index){
-    
+    this.orderData = {};
 
+    // console.log(hour);
+    // console.log(day);
+    
+    // console.log(this.tmpHourDay[index]);
+    this.tmpHourDay[index].hour = hour;
+    // console.log(this.tmpHourDay);
+
+  }
+
+  onSelectedHourSingle(option: IOption, day,hour, index){
+    this.orderData = {};
+    
+    // console.log(hour);
+    // console.log(day);
     this.tmpHourDay[index] = {};
-    this.tmpHourDay[index] = {day:moment(day.jsdate).format('dddd'), hour:hour};
-    console.log(this.tmpHourDay);
+    this.tmpHourDay[index] = {day:moment(day.formatted,'DD-MM-YYYY').format('dddd'), hour:hour};
+    // console.log(this.tmpHourDay[index]);
+    // this.tmpHourDay[index].hour = hour;
+    // console.log(this.tmpHourDay);
 
   }
 
   // checkSelectedSchedule(index){
   //   if(this.tmpHourDay[index])
   // }
-  checkCart(){
+  
+  onSelectedSessionDate(){
+    this.orderData = {};
+    this.singleSessionHourOption = [];
+    // console.log(option);
+    var daySchedule:any = _.filter(this.activeSchedule, {day: moment(this.sessionDate.jsdate).format('dddd')});
+    // console.log(daySchedule);
+    var that = this;
+    // console.log(this.listUnavailable);
+    // _.includes()
+    daySchedule[0].hour.forEach(e=>{
+      var a = {
+        date:moment(this.sessionDate.jsdate).format('MM-DD-YYYY'),
+        day:moment(this.sessionDate.jsdate).format('dddd'),
+        jam:Number(e),
+        jamEnd:0,
+        jamStart:0,
+        review:"",
+        status:"booked"
+      }
 
+      if(_.some(this.listUnavailable, a)){
+
+      }else{
+        that.singleSessionHourOption.push({label:e+":00",value:e});
+      }
+
+     
+    })
+    // this.singleSessionHourOption = _.uniqBy(this.singleSessionHourOption, function (e) {
+    //   return e.label;
+    // });
+
+    // this.hourOpt[index] = this.singleSessionHourOption;
+  }
+
+  onDeselected(option: IOption) {
+    this.selectedLevel = "";
+    // console.log(option);
+  }
+
+  onSelectedStartDate(){
+    this.orderData = {};
+    this.dateRange = [];
+    // console.log(this.startDate);
+    // console.log(new Date());
+    this.endDatePickerOptions.disableUntil.year = this.startDate.date.year;
+    this.endDatePickerOptions.disableUntil.month = this.startDate.date.month;
+    this.endDatePickerOptions.disableUntil.day = (this.startDate.date.day+5);
+    this.endDate = "";
+  }
+
+  
+
+  onSelectedEndDate(){
+    this.orderData = {};
+    // var range = moment().range(fromDate, toDate);
+    // const a = this.startDate.jsdate;
+    // var that = this;
+    var start = this.startDate.jsdate;
+    this.dateRange = [];
+    // console.log(start);
+    while(start <= this.endDate.jsdate){
+      this.dateRange.push({
+        moment:moment(start),
+        day:moment(start).format('dddd'),
+        date:moment(start).format('dddd DD-MM-YYYY'),
+        status:false
+      });
+      //.format('dddd DD-MM-YYYY')
+      var newDate = moment(start).add(1,'day');
+      start = newDate;  
+      // console.log(this.startDate.jsdate);
+    }
+
+    // console.log(this.listUnavailable);
+
+    // console.log(this.dateRange);
+  }
+
+  onSelectedCourse(option: IOption) {
+    this.orderData = {};
+    this.selectedCourse = option.label;
+    console.log(this.selectedCourse);
+  }
+
+  onSelectedOrderType(option: IOption) {
+    this.orderData = {};
+    this.sessionDate={};
+    this.startDate={};
+    this.endDate={};
+    this.selectedOrderType = option.label;
+  }
+
+  generateTutorSchedule(schedule){
+    // console.log(schedule);
+    let filteredSchedule = _.filter(schedule, {status: true});
+    let filteredNotActive = _.filter(schedule, {status: false});
+    var that = this;
+    var dayOption = [];
+    var frekuensiOption = [];
+    filteredSchedule.forEach(function(value, i){
+      // console.log(value);
+      var obj = value;
+      obj.hour = that.resolveHour(obj);
+      that.activeSchedule.push(obj)
+      dayOption.push({label:obj.day,value:obj.day});
+      // frekuensiOption.push({label:(i+1)+"X", value:(i+1)});
+    })
+    this.dayOptions = dayOption;
+    // this.frekuensiOptions = frekuensiOption;
+    // console.log(filteredNotActive);
+    var arrDisable = [];
+    filteredNotActive.forEach(e=>{
+      // console.log(e.day.substring(0,2).toLowerCase());
+      arrDisable.push(e.day.substring(0,2).toLowerCase());
+    })
+
+    // console.log(arrDisable);
+    that.singleSessionPickerOptions.disableWeekdays = [];
+    that.singleSessionPickerOptions.disableWeekdays = arrDisable;
+    // this.activeSchedule.forEach(e=>{
+    //   that.singleSessionPickerOptions.disableWeekdays = [];
+    //   that.singleSessionPickerOptions.disableWeekdays.push(e.day.substring(0,2).toLowerCase());
+    // })
+    
+  }
+
+
+  checkCart(){  
     if(this.selectedOrderType == 'Regular'){
       if(this.dateRange.length > 0 && this.tmpHourDay[0] != undefined){
-        console.log(this.tutorData);
-        console.log(this.dataProduct);
+        // console.log(this.tutorData);
+        // console.log(this.dataProduct);
         this.sessionData = [];
         this.orderData = {};
         // console.log("test"); 
@@ -487,7 +738,7 @@ export class OrderDetailComponent implements OnInit {
   
             }
           })
-          console.log(this.sessionData);
+          // console.log(this.sessionData);
         }
   
         this.orderData.sessions = this.sessionData;
@@ -512,11 +763,11 @@ export class OrderDetailComponent implements OnInit {
         this.orderData.phoneNumber = this.userData.phoneNumber;
         this.orderData.price = this.dataProduct.price;
         // if(jumlah)
-        console.log(this.sessionData.length);
-        console.log(this.dataProduct.price);
-        console.log();
+        // console.log(this.sessionData.length);
+        // console.log(this.dataProduct.price);
+        // console.log();
         this.orderData.totalHarga = this.sessionData.length * ( this.dataProduct.price * (((Number(this.selectedTotalStudent) - 1) * 0.5) + 1))
-        console.log(this.orderData);
+        // console.log(this.orderData);
         this.orderData.status = "cart";
         this.orderData.transactionId = "LP"+moment().format('x');
         this.orderData.tutorAvatar = this.tutorData.avatar;
@@ -526,12 +777,13 @@ export class OrderDetailComponent implements OnInit {
         this.orderData.uid = this.userData.updateBy;
         this.orderData.userName = this.userData.firstName;
         this.orderData.createDate = moment().format('x');
+        this.orderData.selectedCourse = this.selectedCourse;
   
         // return true;
       }
     }else {
-      console.log(this.tutorData);
-      console.log(this.dataProduct);
+      // console.log(this.tutorData);
+      // console.log(this.dataProduct);
       this.sessionData = [];
       this.orderData = {};
       // console.log("test"); 
@@ -569,11 +821,11 @@ export class OrderDetailComponent implements OnInit {
       this.orderData.phoneNumber = this.userData.phoneNumber;
       this.orderData.price = this.dataProduct.price;
       // if(jumlah)
-      console.log(this.sessionData.length);
-      console.log(this.dataProduct.price);
-      console.log();
+      // console.log(this.sessionData.length);
+      // console.log(this.dataProduct.price);
+      // console.log();
       this.orderData.totalHarga = this.sessionData.length * ( this.dataProduct.price * (((Number(this.selectedTotalStudent) - 1) * 0.5) + 1))
-      console.log(this.orderData);
+      // console.log(this.orderData);
       this.orderData.status = "cart";
       this.orderData.transactionId = "LP"+moment().format('x');
       this.orderData.tutorAvatar = this.tutorData.avatar;
@@ -583,13 +835,14 @@ export class OrderDetailComponent implements OnInit {
       this.orderData.uid = this.userData.updateBy;
       this.orderData.userName = this.userData.firstName;
       this.orderData.createDate = moment().format('x');
+      this.orderData.selectedCourse = this.selectedCourse;
     }
 
-    if(!this.orderData.sessions || !this.studentAddress || !this.studentName){
+    if(!this.orderData.sessions || !this.studentAddress || !this.studentName || !this.selectedCourse){
       this.showNotification('top', 'right', 'danger', "Please fill the data");
       this.orderData = {};
     }
-   
+    
     
     
   }
@@ -602,114 +855,19 @@ export class OrderDetailComponent implements OnInit {
       }
       this.userService.updateMuridProfile(obj, this.muridId).then(e=>{
         this.productService.createOrder(this.orderData).then(e=>{
-          console.log('success');
+          // console.log('success');
           this.router.navigate(['dashboard/cart']);
         })
       });
     }
   }
 
-  
-
-  onDeselected(option: IOption) {
-    this.selectedLevel = "";
-    console.log(option);
-  }
-
-  onSelectedStartDate(){
-    this.dateRange = [];
-    console.log(this.startDate);
-    console.log(new Date());
-    this.endDatePickerOptions.disableUntil.year = this.startDate.date.year;
-    this.endDatePickerOptions.disableUntil.month = this.startDate.date.month;
-    this.endDatePickerOptions.disableUntil.day = (this.startDate.date.day+5);
-    this.endDate = "";
-  }
-
-  onSelectedSessionDate(){
-    this.singleSessionHourOption = [];
-    // console.log(option);
-    var daySchedule:any = _.filter(this.activeSchedule, {day: moment(this.sessionDate.jsdate).format('dddd')});
-    console.log(daySchedule);
-    daySchedule[0].hour.forEach(e=>{
-      this.singleSessionHourOption.push({label:e,value:e});
-    })
-    // this.hourOpt[index] = this.singleSessionHourOption;
-  }
-
-  onSelectedEndDate(){
-    // var range = moment().range(fromDate, toDate);
-    // const a = this.startDate.jsdate;
-    // var that = this;
-    var start = this.startDate.jsdate;
-    this.dateRange = [];
-    console.log(start);
-    while(start <= this.endDate.jsdate){
-      this.dateRange.push({
-        moment:moment(start),
-        day:moment(start).format('dddd'),
-        date:moment(start).format('dddd DD-MM-YYYY'),
-        status:false
-      });
-      //.format('dddd DD-MM-YYYY')
-      var newDate = moment(start).add(1,'day');
-      start = newDate;  
-      // console.log(this.startDate.jsdate);
-    }
-
-    console.log(this.dateRange);
-  }
-
-  onSelectedCourse(option: IOption) {
-    this.selectedCourse = option.label;
-  }
-
-  onSelectedOrderType(option: IOption) {
-    this.orderData = {};
-    this.sessionDate={};
-    this.startDate={};
-    this.selectedOrderType = option.label;
-  }
-
-  generateTutorSchedule(schedule){
-    console.log(schedule);
-    let filteredSchedule = _.filter(schedule, {status: true});
-    let filteredNotActive = _.filter(schedule, {status: false});
-    var that = this;
-    var dayOption = [];
-    var frekuensiOption = [];
-    filteredSchedule.forEach(function(value, i){
-      console.log(value);
-      var obj = value;
-      obj.hour = that.resolveHour(obj);
-      that.activeSchedule.push(obj)
-      dayOption.push({label:obj.day,value:obj.day});
-      // frekuensiOption.push({label:(i+1)+"X", value:(i+1)});
-    })
-    this.dayOptions = dayOption;
-    // this.frekuensiOptions = frekuensiOption;
-    console.log(filteredNotActive);
-    var arrDisable = [];
-    filteredNotActive.forEach(e=>{
-      console.log(e.day.substring(0,2).toLowerCase());
-      arrDisable.push(e.day.substring(0,2).toLowerCase());
-    })
-
-    console.log(arrDisable);
-    that.singleSessionPickerOptions.disableWeekdays = [];
-    that.singleSessionPickerOptions.disableWeekdays = arrDisable;
-    // this.activeSchedule.forEach(e=>{
-    //   that.singleSessionPickerOptions.disableWeekdays = [];
-    //   that.singleSessionPickerOptions.disableWeekdays.push(e.day.substring(0,2).toLowerCase());
-    // })
-    
-  }
 
   resolveHour(schedule){
     var hour = [];
     schedule.AM.forEach(function (value, i){
-      console.log(value);
-      console.log(i);
+      // console.log(value);
+      // console.log(i);
       if(value){
         hour.push(i+1);
       }
@@ -721,7 +879,7 @@ export class OrderDetailComponent implements OnInit {
       }
       
     });
-    console.log(hour);
+    // console.log(hour);
     return hour;
     
   }
@@ -729,5 +887,35 @@ export class OrderDetailComponent implements OnInit {
   resolveCurrency(num){
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   } 
+
+  backClicked() {
+    this._location.back();
+  }
+
+  goToTutorProfile(tutorKey){
+    console.log(tutorKey);
+    let navigationExtras: NavigationExtras = {
+      queryParams : {
+        "tutorKey" : tutorKey
+      }
+    }
+    this.router.navigate(['dashboard/tutorprofile'], navigationExtras);
+  }
+
+  resolveDiscount(){
+    return ((this.dataProduct.price * Number(this.selectedTotalStudent) ) *  this.sessionData.length) -  this.sessionData.length * ( this.dataProduct.price * (((Number(this.selectedTotalStudent) - 1) * 0.5) + 1))
+  }
+
+  resolveDay(date){
+    return moment(date, 'MM-DD-YYYY').format('dddd');
+  }
+
+  formatDate(date){
+    return moment(date, 'MM-DD-YYYY').format('DD-MM-YYYY');
+  }
+
+  formatScheduleDate(date){
+    return moment(date,'YYYY-M-D').format('DD-MM-YYYY');
+  }
 
 }

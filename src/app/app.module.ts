@@ -8,7 +8,7 @@ import { AngularFireModule } from 'angularfire2';
 import { AngularFireAuthModule } from 'angularfire2/auth';
 import { AngularFireDatabaseModule, AngularFireDatabase } from 'angularfire2/database';
 
-import { FileSelectDirective } from 'ng2-file-upload';
+// import { FileSelectDirective } from 'ng2-file-upload';
 
 
 import { DashboardModule } from './dashboard/dashboard.module';
@@ -41,8 +41,7 @@ export const firebaseConfig = {
 
 @NgModule({
   declarations: [
-    AppComponent,
-    FileSelectDirective
+    AppComponent
   ],
   imports: [
     BrowserModule,

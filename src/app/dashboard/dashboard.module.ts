@@ -38,6 +38,8 @@ import {MyDatePickerModule} from 'mydatepicker';
 // import { MultiselectDropdownModule } from 'angular-2-dropdown-multiselect';
 import {SelectModule} from 'ng-select';
 
+import { ImageCropperModule } from 'ng2-img-cropper';
+
 import { AgmCoreModule } from '@agm/core';
 
 // import { ImageCropperComponent, CropperSettings, Bounds } from 'ng2-img-cropper';
@@ -87,7 +89,8 @@ export const firebaseConfig = {
     }),
     MyDatePickerModule,
     SelectModule,
-    RegistrationModule
+    RegistrationModule,
+    ImageCropperModule
   ],
   exports: [DashboardComponent]
 })

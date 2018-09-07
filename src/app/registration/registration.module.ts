@@ -9,11 +9,12 @@ import { TextMaskModule } from 'angular2-text-mask';
 // import { SmsService } from '../../providers/sms.service';
 
 
-import { ImageCropperComponent, CropperSettings, Bounds } from 'ng2-img-cropper';
+// import { ImageCropperComponent, CropperSettings, Bounds } from 'ng2-img-cropper';
+import { ImageCropperModule } from 'ng2-img-cropper';
 import { AgmCoreModule } from '@agm/core';
 
 @NgModule({
-    declarations: [RegistrationComponent, ImageCropperComponent],
+    declarations: [RegistrationComponent],
     imports: [ 
         BrowserModule, 
         FormsModule,
@@ -22,9 +23,10 @@ import { AgmCoreModule } from '@agm/core';
             apiKey: 'AIzaSyDkJlWv1jF6qlZvbn8vQbtiSQckPFjzQ-w',
             libraries: ["places"]
         }),
-        TextMaskModule
+        TextMaskModule,
+        ImageCropperModule
      ],
-    exports: [ RegistrationComponent, ImageCropperComponent ],
+    exports: [ RegistrationComponent ],
     providers: [],
     bootstrap: [RegistrationComponent]
 })

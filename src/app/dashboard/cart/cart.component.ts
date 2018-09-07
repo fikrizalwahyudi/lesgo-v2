@@ -1,6 +1,6 @@
 import { NgZone, OnInit, ViewChild, ElementRef, Component, ViewContainerRef, AfterViewInit } from '@angular/core';
 import { AngularFireAuthModule, AngularFireAuth } from 'angularfire2/auth';
-import { Router } from '@angular/router';
+import { Router, NavigationExtras } from '@angular/router';
 import { FileUploader } from 'ng2-file-upload';
 import {ImageCropperComponent, CropperSettings} from 'ng2-img-cropper';
 import { FormControl } from '@angular/forms';
@@ -68,6 +68,10 @@ export class CartComponent implements OnInit {
   orderStatusCartData:any=[];
   orderHistoryData:any=[];
   totalPrice:any = 0;
+
+  discountVal:any=0;
+  promoCode:any = "";
+  promoDetail:any = {value:0};
   
 
 
@@ -216,6 +220,7 @@ export class CartComponent implements OnInit {
   }
 
   convertDate(date){
+    
     return moment(date, 'x').format('DD-MM-YYYY HH:mm:ss');
   }
 
@@ -251,6 +256,7 @@ export class CartComponent implements OnInit {
       })
     })
 
+    this.discountVal = this.promoDetail.value;
     
     // this.orderData.forEach(e=>{
     //   console.log(e.val);
@@ -264,28 +270,63 @@ export class CartComponent implements OnInit {
     // })
 
     for (let i = 0; i < this.orderStatusCartData.length; i++) {
+      totalHarga += this.orderStatusCartData[i].val.totalHarga;
+    }
+
+    var potongan = 0;
+
+    if(this.discountVal > 0){
+      
+      // this.discountVal = 0;
+      potongan = Math.trunc((this.discountVal / this.orderStatusCartData.length));
+      totalHarga -= (potongan * this.orderStatusCartData.length);
+    }
+
+    // + "(Discount " + this.resolveCurrency(potongan) +" )"
+
+    for (let i = 0; i < this.orderStatusCartData.length; i++) {
+      console.log(this.orderStatusCartData[i].key);
+      
       var fullName = this.orderStatusCartData[i].val.tutorName.substring(0, 17) + '.. ';
+      if(potongan > 0){
+        fullName += '** ';
+        sendData.push({
+          "id": this.orderStatusCartData[i].key,
+          "price": this.orderStatusCartData[i].val.totalHarga - potongan,
+          "quantity": 1,
+          "name": fullName + this.orderStatusCartData[i].val.orderSchedule.startDate + ' - ' + this.orderStatusCartData[i].val.orderSchedule.endDate ,
+          "brand": "LESGO INDONESIA PINTAR",
+          "category": "Tutor",
+          "merchant_name": "LESGO"
+        })
+      }else {
+        sendData.push({
+          "id": this.orderStatusCartData[i].key,
+          "price": this.orderStatusCartData[i].val.totalHarga,
+          "quantity": 1,
+          "name": fullName  + this.orderStatusCartData[i].val.orderSchedule.startDate + ' - ' + this.orderStatusCartData[i].val.orderSchedule.endDate,
+          "brand": "LESGO INDONESIA PINTAR",
+          "category": "Tutor",
+          "merchant_name": "LESGO"
+        })
+      }
       // var StringDiscount = "";
 
-      // if(this.orderStatusCartData[i].totalHarga >= 50000 && this.setDiscount == true){
-      //   if(this.discount != 0){
-      //     fullName += '**';
+      // if(this.orderStatusCartData[i].val.totalHarga >= this.discountVal){
+      //   if(this.discountVal != 0){
+      //     fullName += '** ';
       //   }
-      //   this.orderStatusCartData[i].totalHarga = (this.cartData[i].totalHarga - this.discount);
-      //   this.discount = 0;
+      //   this.orderStatusCartData[i].val.totalHarga = (this.orderStatusCartData[i].val.totalHarga - this.discountVal);
+      //   this.discountVal = 0;
       //   // StringDiscount = "potongan " + this.discountText;
+      // }else {
+
       // }
-      totalHarga += this.orderStatusCartData[i].val.totalHarga;
-      sendData.push({
-        "id": this.orderStatusCartData[i].val.orderId,
-        "price": this.orderStatusCartData[i].val.totalHarga,
-        "quantity": 1,
-        "name": fullName  + this.orderStatusCartData[i].val.orderSchedule.startDate + ' - ' + this.orderStatusCartData[i].val.orderSchedule.endDate,
-        "brand": "Midtrans",
-        "category": "Toys",
-        "merchant_name": "Midtrans"
-      })
+      // totalHarga += this.orderStatusCartData[i].val.totalHarga;
+      
     }
+
+    
 
     var conFee = 5700
 
@@ -310,7 +351,7 @@ export class CartComponent implements OnInit {
     //   spinner: "hide"
     // });
 
-    console.log(sendData)
+    console.log(totalHarga)
     // loader.present();
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
@@ -318,7 +359,7 @@ export class CartComponent implements OnInit {
     var body = {
       "transaction_details": {
         "order_id": transId,
-        "gross_amount": totalHarga
+        "gross_amount": totalHarga 
 
       },
       "item_details": sendData,
@@ -393,6 +434,112 @@ export class CartComponent implements OnInit {
     });
   };
 
+  removeOrder(key){
+    console.log(key);
+    var r = confirm("Anda yakin untuk menghapus order ini ?");
+    if (r == true) {
+      this.productService.removeOrder(key).then(e=>{
+        console.log("success");
+        
+      })
+    } else {
+       
+    }
+    
+  }
+
+  getDetailPromo(){
+    return new Promise((resolve , reject)=>{
+      var x = [];
+      this.productService.getPromo(this.promoCode).snapshotChanges().subscribe(snapshot=>{
+        
+        snapshot.map(e=>{
+          x.push({key:e.key,val:e.payload.val()});
+        })
+  
+        console.log(x);
+        resolve(x);
+      },error=>{
+        reject(error);
+      })
+    });
+  }
+
+  checkDiscount(){
+    // var x:any;
+    this.getDetailPromo().then(data=>{
+      // x = data;
+      var x:any = data;
+      console.log(data);
+      if(x.length > 0){
+        if(x[0].val.type == 'flat'){
+          this.promoDetail = x[0].val;
+          // console.log(moment(this.promoDetail.endDate, "DD-MM-YYYY").format('x'));
+          if(moment().format('x') <= moment(this.promoDetail.endDate, "DD-MM-YYYY").format('x')){
+            // console.log("masih berlaku");
+            if(this.totalPrice < this.promoDetail.minOrder){
+              this.showNotification('top', 'right', 'danger', "Untuk menggunakan promo ini minimum order harus " + this.resolveCurrency(this.promoDetail.minOrder));
+              this.promoDetail.value = 0;
+            }else{
+              this.showNotification('top', 'right', 'success', "Selamat anda mendapatkan discount sebesar " + this.resolveCurrency(x[0].val.value));
+            }
+            
+            // console.log("selamat anda mendapatkan promo", x[0].val);
+          }else {
+            this.promoDetail.value = 0;
+            this.showNotification('top', 'right', 'danger', "Maaf promo tersebut sudah berakhir");
+          }
+        }else {
+          this.promoDetail = x[0].val;
+          console.log("masuk percent")
+          console.log(moment(this.promoDetail.endDate, "DD-MM-YYYY").format('x'));
+          if(moment().format('x') <= moment(this.promoDetail.endDate, "DD-MM-YYYY").format('x')){
+            // console.log("masih berlaku");
+            if(this.totalPrice < this.promoDetail.minOrder){
+              this.showNotification('top', 'right', 'danger', "Untuk menggunakan promo ini minimum order harus " + this.resolveCurrency(this.promoDetail.minOrder));
+              this.promoDetail.value = 0;
+            }else{
+              console.log(x[0].val.value);
+              console.log(x[0].val);
+              this.promoDetail.value = (this.totalPrice * x[0].val.value) / 100;
+              
+              this.showNotification('top', 'right', 'success', "Selamat anda mendapatkan discount sebesar " + this.resolveCurrency(x[0].val.value));
+            }
+            
+            // console.log("selamat anda mendapatkan promo", x[0].val);
+          }else {
+            this.promoDetail.value = 0;
+            this.showNotification('top', 'right', 'danger', "Maaf promo tersebut sudah berakhir");
+          }
+        }
+        
+      }else {
+        this.promoDetail.value = 0;
+        this.showNotification('top', 'right', 'danger', "Maaf kode promo yang anda input salah");
+      }
+    }).catch(error=>{
+      console.log(error);
+    })
+    
+    // if(this.promoCode == "promo"){
+    //   
+    //   this.discountVal = 50000;
+    // }else {
+    //   this.showNotification('top', 'right', 'danger', "Maaf code yang anda input salah atau sudah expired ");
+    // }
+
+  }
+
+  goToTutorProfile(tutorKey){
+    console.log(tutorKey);
+    let navigationExtras: NavigationExtras = {
+      queryParams : {
+        "tutorKey" : tutorKey
+      }
+    }
+    this.router.navigate(['dashboard/tutorprofile'], navigationExtras);
+  }
+
   goToOrderPage(){
     this.router.navigate(['dashboard/order']);
   }
@@ -400,5 +547,9 @@ export class CartComponent implements OnInit {
   resolveCurrency(num){
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   } 
+
+  formatDate(date){
+    return moment(date, 'MM-DD-YYYY').format('DD-MM-YYYY');
+  }
 
 }

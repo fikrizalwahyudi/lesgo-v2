@@ -1,6 +1,7 @@
 import { CanActivate, Router } from '@angular/router';
 import { AngularFireAuth } from 'angularfire2/auth';
 import { AngularFireDatabase } from 'angularfire2/database';
+import { Http, Headers, RequestOptions, Response, URLSearchParams } from '@angular/http';
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs/Rx";
 import 'rxjs/add/operator/do';
@@ -14,7 +15,7 @@ export class ProductService {
 
     user: Observable<firebase.User>;
 
-    constructor(private afAuth: AngularFireAuth, private router: Router, private afDB:AngularFireDatabase) {
+    constructor(private http:Http, private afAuth: AngularFireAuth, private router: Router, private afDB:AngularFireDatabase) {
         this.user = afAuth.authState;
     }
 
@@ -90,6 +91,10 @@ export class ProductService {
         return this.afDB.list('/order', ref => ref.orderByChild('uid').equalTo(uid));
     }
 
+    removeOrder(key){
+        return this.afDB.object('order/'+key).remove();
+    }
+
     updateOrderStatus(obj){
         return this.afDB.object('order/'+obj).update({status:'pending'});
     }
@@ -102,4 +107,23 @@ export class ProductService {
         return this.afDB.list('/products', ref => ref.orderByChild('userId').equalTo(uid));
     }
 
+    getAllOrderByTutorId(uid){
+        console.log(uid);
+        return this.afDB.list('/order', ref=> ref.orderByChild('tutorUid').equalTo(uid));
+    }
+
+    getUnavailability(startDate, uid) {
+        var that = this;
+        let body = { "uid": uid, "startDate": startDate };
+        let bodyString = "tutorUid=" + uid + "&startDate=" + startDate;
+        var headers = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' }); // ... Set content type to JSON
+        var options = new RequestOptions({ headers: headers });
+        return this.http.post("https://us-central1-web-uat-1a4d8.cloudfunctions.net/blockingDate?" + bodyString, body, options)
+          .map((res: Response) => res.json())
+          .catch((error: any) => Observable.throw(error.json()));
+    }
+
+    getPromo(code){
+        return this.afDB.list('/discountweb', ref => ref.orderByChild('code').equalTo(code));
+    }
 }

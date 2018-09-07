@@ -12,6 +12,8 @@ import { UserService } from '../../providers/user.service';
 
 import * as firebase from 'firebase';
 
+import {Location} from '@angular/common';
+
 declare var google: any;
 declare var $:any;
 
@@ -56,7 +58,7 @@ export class RegistrationComponent implements OnInit {
     public blobImgfile:any;
  
 
-    constructor(public userService:UserService, public smsService:SmsService, public af: AngularFireAuth,private router: Router,private mapsAPILoader: MapsAPILoader, private ngZone: NgZone) {
+    constructor(public _location:Location,public userService:UserService, public smsService:SmsService, public af: AngularFireAuth,private router: Router,private mapsAPILoader: MapsAPILoader, private ngZone: NgZone) {
       //image cropper setting;
       this.cropperSettings = new CropperSettings();
       this.cropperSettings.width = 100;
@@ -331,6 +333,10 @@ export class RegistrationComponent implements OnInit {
             align: align
         }
     });
+  }
+
+  backClicked() {
+    this._location.back();
   }
 
   

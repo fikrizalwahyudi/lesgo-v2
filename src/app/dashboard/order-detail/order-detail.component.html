@@ -56,13 +56,13 @@
                                             <div class="col-md-6">
                                                 <div class="form-group"  >
                                                     <label>Day</label>
-                                                    <ng-select (deselected)="onDeselected($event)" [(ngModel)]="each.day" (selected)="onSelectedDay($event, x)" [noFilter]="noFilterThreshold" [allowClear]="true" [options]="dayOptions"></ng-select>
+                                                    <ng-select  [(ngModel)]="each.day" (selected)="onSelectedDay($event, x)" [noFilter]="noFilterThreshold" [allowClear]="true" [options]="dayOptions"></ng-select>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group" >
                                                     <label>Hour</label>
-                                                    <ng-select (deselected)="onDeselected($event)" [(ngModel)]="each.hour" (selected)="onSelectedHour($event,each.day,each.hour, x)" [noFilter]="noFilterThreshold" [allowClear]="true" [options]="hourOpt[x]"> </ng-select>
+                                                    <ng-select [disabled]="!each.day" notFoundMsg="Schedule has been booked by another customer" [(ngModel)]="each.hour" (selected)="onSelectedHour($event,each.day,each.hour, x)" [noFilter]="noFilterThreshold" [allowClear]="true" [options]="hourOpt[x]"> </ng-select>
                                                 </div>
                                             </div>
                                         </div>
@@ -71,6 +71,13 @@
                                                 <div class="form-group">
                                                     <label>Student Name</label>
                                                     <input type="text" class="form-control" placeholder="Student Name" [(ngModel)]="studentName">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6" *ngIf="coursesOption.length > 0">  
+                                                <div class="form-group">
+                                                    <label>Course</label>
+                                                    <ng-select [(ngModel)]="selectedCourse"  (selected)="onSelectedCourse($event)" [noFilter]="noFilterThreshold" [options]="coursesOption">
+                                                    </ng-select>
                                                 </div>
                                             </div>
                                             
@@ -106,6 +113,7 @@
             
                                       
                                         <br>
+                                        <button (click)="backClicked()" type="submit" class="btn btn-info btn-fill pull-left">Back</button>
                                         <button (click)="checkCart()" type="submit" class="btn btn-info btn-fill pull-right">Submit</button>
                                         <div class="clearfix"></div>
                                    
@@ -143,10 +151,10 @@
                                                     <my-date-picker  name="sessionDate" [placeholder]="'Session Date'" [options]="singleSessionPickerOptions"[(ngModel)]="sessionDate" (ngModelChange)="onSelectedSessionDate()" required></my-date-picker>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6">
+                                            <div class="col-md-6" >
                                                 <div class="form-group" >
                                                     <label>Hour</label>
-                                                    <ng-select (deselected)="onDeselected($event)"  (selected)="onSelectedHour($event,sessionDate,singleHour, 0)" [(ngModel)]="singleHour" [noFilter]="noFilterThreshold" [allowClear]="true" [options]="singleSessionHourOption" > </ng-select>
+                                                    <ng-select notFoundMsg="Schedule has been booked by another customer" [disabled]="singleSessionHourOption.length == 0" (deselected)="onDeselected($event)"  (selected)="onSelectedHourSingle($event,sessionDate,singleHour, 0)" [(ngModel)]="singleHour" [noFilter]="noFilterThreshold" [allowClear]="true" [options]="singleSessionHourOption" > </ng-select>
                                                 </div>
                                             </div>
                                             
@@ -156,6 +164,13 @@
                                                 <div class="form-group">
                                                     <label>Student Name</label>
                                                     <input type="text" class="form-control" placeholder="Student Name" [(ngModel)]="studentName">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6" *ngIf="coursesOption.length > 0">  
+                                                <div class="form-group">
+                                                    <label>Course</label>
+                                                    <ng-select [(ngModel)]="selectedCourse"  (selected)="onSelectedCourse($event)" [noFilter]="noFilterThreshold" [options]="coursesOption">
+                                                    </ng-select>
                                                 </div>
                                             </div>
                                             
@@ -191,6 +206,8 @@
             
                                         
                                         <br>
+                                        
+                                        <button (click)="backClicked()" type="submit" class="btn btn-info btn-fill pull-left">Back</button>
                                         <button (click)="checkCart()" type="submit" class="btn btn-info btn-fill pull-right">Submit</button>
                                         <div class="clearfix"></div>
                                     
@@ -200,11 +217,11 @@
                         <div  class="col-md-4">
                             <div class="card card-user">
                                 <div class="image">
-                                    <img src="assets/img/bg-guru-01.png" alt="..."/>
+                                    <img src="assets/img/bg-guru.png" alt="..."/>
                                 </div>
                                 <div class="content">
                                     <div class="author">
-                                        <a href="#">
+                                        <a style="cursor: pointer;" (click)="goToTutorProfile(tutorData.uid)">
                                             <img class="avatar border-gray" src="{{tutorData.avatar}}" alt="..."/>
             
                                             <h4 class="title">{{tutorData.firstName}} {{tutorData.lastName}}<br />
@@ -241,18 +258,25 @@
                                 <div class="col-md-6">
                                         <p style=" font-size:  12px; line-height: 8px;"> <strong> {{orderData.namaMurid}}</strong></p>
                                         <p style=" font-size:  12px; line-height: 8px;">Address : {{orderData.alamatMurid}}</p>
+                                        <p style=" font-size:  12px; line-height: 8px;"> <strong> Order ID </strong></p>
+                                        <p style=" font-size:  12px; line-height: 8px;">{{orderData.transactionId}}</p>
                                         
                                 </div>
                                 <div class="col-md-3">
-                                        <p style=" font-size:  12px; line-height: 8px;"> <strong> Order ID </strong></p>
-                                        <p style=" font-size:  12px; line-height: 8px;">{{orderData.transactionId}}</p>
+                                        <p style=" font-size:  12px; line-height: 8px;"> <strong> Jumlah Murid </strong></p>
+                                        <p style=" font-size:  12px; line-height: 8px;">{{selectedTotalStudent}}</p>
+                                        <p style=" font-size:  12px; line-height: 8px;"> <strong> Schedule Date </strong></p>
+                                        <p style=" font-size:  12px; line-height: 8px;">{{formatScheduleDate(orderData.orderSchedule.startDate)}} - {{formatScheduleDate(orderData.orderSchedule.endDate)}}</p>
                                         <p style=" font-size:  12px; line-height: 8px;"> <strong> Tutor Name </strong></p>
                                         <p style=" font-size:  12px; line-height: 8px;">{{orderData.tutorName}}</p>
                                      
                                  </div>
                                  <div class="col-md-3">
-                                        <p style=" font-size:  12px; line-height: 8px;"> <strong> Schedule Date </strong></p>
-                                        <p style=" font-size:  12px; line-height: 8px;">{{orderData.orderSchedule.startDate}} - {{orderData.orderSchedule.endDate}}</p>
+                                        
+                                        <p style=" font-size:  12px; line-height: 8px;"> <strong> Price / Session</strong></p>
+                                        <p style=" font-size:  12px; line-height: 8px;">Rp. {{resolveCurrency(orderData.price)}}</p>
+                                        <p style=" font-size:  12px; line-height: 8px;"> <strong> Discount</strong></p>
+                                        <p style=" font-size:  12px; line-height: 8px;">Rp. {{resolveCurrency(resolveDiscount())}}</p>
                                         <p style=" font-size:  12px; line-height: 8px;"> <strong> Total Price </strong></p>
                                         <p style=" font-size:  12px; line-height: 8px;">Rp. {{resolveCurrency(orderData.totalHarga)}}</p>
 
@@ -270,20 +294,22 @@
                                                     <tr>
                                                         <th>No</th>
                                                         <th >Tutor Name</th>
+                                                        <th>Course</th>
                                                         <th >Day</th>
                                                         <th >Date</th>
                                                         <th >Hour</th>
-                                                        <th>Price</th>
+                                                        <!-- <th>Price / Session</th> -->
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <tr *ngFor="let session of orderData.sessions; let i = index" >
                                                         <td>{{i + 1}}</td>
                                                         <td >{{orderData.tutorName}}</td>
+                                                        <td>{{selectedCourse}}</td>
                                                         <td >{{session.day}}</td>
-                                                        <td >{{session.date}}</td>
+                                                        <td >{{formatDate(session.date)}}</td>
                                                         <td >{{session.jam}}:00</td>
-                                                        <td>Rp. {{resolveCurrency(orderData.price)}}</td>
+                                                        <!-- <td>Rp. {{resolveCurrency(orderData.price)}}</td> -->
                                                     </tr>
                                                     
                                                 </tbody>
